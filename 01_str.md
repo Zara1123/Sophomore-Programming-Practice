@@ -128,6 +128,26 @@ Python 的 append 帮你记着“该塞第几个格子了”，C 没这服务，
 C 的字符串没有 length 属性，全靠结尾的 '\0' 标记“到这结束了”。忘写这行，strlen 读返回字符串时会一直往后读到内存 garbage 为止——这就是无数黑客攻击的源头（缓冲区溢出）。
 
 
+# 字符串的最大公因子
+
+题目：对于字符串 s 和 t，只有在 s = t + t + t + ... + t + t（t 自身连接 1 次或多次）时，我们才认定 “t 能除尽 s”。给定两个字符串 str1 和 str2 。返回 最长字符串 x，要求满足 x 能除尽 str1 且 x 能除尽 str2 。
+
+```
+import math
+class Solution:
+    def gcdOfStrings(self, str1: str, str2: str) -> str:
+        if str1 + str2 != str2 + str1:
+            return ""
+        return str1[: math.gcd(len(str1), len(str2))]
+```
+
+str1 + str2 == str2 + str1 是"存在公共除数字"的充要条件。
+
+1.若两者都能被 x 除尽，设 str1 = x*k1、str2 = x*k2，则 str1+str2 = x*(k1+k2) = str2+str1，两种拼接必然相等。
+2.若两种拼接相等，可以证明两者必由同一个基串重复构成（可用归纳法或辗转相除法
+核心等式：gcd(a, b) = gcd(b, a mod b)，直到 b = 0 时，a 就是答案
+3.答案长度：公共除数字 x 的长度必须同时整除 len(str1) 和 len(str2)，且要最长，所以取 gcd(len(str1), len(str2))。
+4.返回值：直接取 str1 的前 gcd 个字符（str2 的前缀完全相同）。
 
 
 
