@@ -127,7 +127,6 @@ Python 的 append 帮你记着“该塞第几个格子了”，C 没这服务，
 
 C 的字符串没有 length 属性，全靠结尾的 '\0' 标记“到这结束了”。忘写这行，strlen 读返回字符串时会一直往后读到内存 garbage 为止——这就是无数黑客攻击的源头（缓冲区溢出）。
 
-
 # 字符串的最大公因子
 
 题目：对于字符串 s 和 t，只有在 s = t + t + t + ... + t + t（t 自身连接 1 次或多次）时，我们才认定 “t 能除尽 s”。给定两个字符串 str1 和 str2 。返回 最长字符串 x，要求满足 x 能除尽 str1 且 x 能除尽 str2 。
@@ -136,19 +135,111 @@ C 的字符串没有 length 属性，全靠结尾的 '\0' 标记“到这结束�
 import math
 class Solution:
     def gcdOfStrings(self, str1: str, str2: str) -> str:
-        if str1 + str2 != str2 + str1:
+        if str1 + str2 != str2 + str1:#拼接相等 ⟺ 存在公共基串
             return ""
-        return str1[: math.gcd(len(str1), len(str2))]
+        return str1[: math.gcd(len(str1), len(str2))]#基串长度 = gcd(m,n)，且必是 str1 的前缀
 ```
 
-str1 + str2 == str2 + str1 是"存在公共除数字"的充要条件。
 
-1.若两者都能被 x 除尽，设 str1 = x*k1、str2 = x*k2，则 str1+str2 = x*(k1+k2) = str2+str1，两种拼接必然相等。
-2.若两种拼接相等，可以证明两者必由同一个基串重复构成（可用归纳法或辗转相除法
-核心等式：gcd(a, b) = gcd(b, a mod b)，直到 b = 0 时，a 就是答案
-3.答案长度：公共除数字 x 的长度必须同时整除 len(str1) 和 len(str2)，且要最长，所以取 gcd(len(str1), len(str2))。
-4.返回值：直接取 str1 的前 gcd 个字符（str2 的前缀完全相同）。
+| 重要定理：str1 + str2 == str2 + str1 是"存在公共基串"的充要条件。
 
+gcd = 最大公因数（最大公约数）
+gcd 是 greatest common divisor 的缩写，就是数学里的“最大公因数”。从头说起：
+
+第一步：什么是“因数”（约数）
+如果 a 能被 b 整除（没有余数），就说 b 是 a 的因数。
+第二步：什么是“公因数”
+两个数共同拥有的因数。
+第三步：什么是“最大”公因数
+公因数里最大的那个。
+gcd(12, 18) = 6，6是12和18的最大公因数
+math.gcd
+就是 Python 自带的求最大公因数函数：
+
+
+【拓展】
+1.暴力枚举法(遍历-检查长度-检查字符)
+## 
+```
+        for L in range(min(len(str1), len(str2)), 0, -1):
+        #假设x的长度为L，从较小字符串的长度开始由大到小遍历
+        #第一步检查：选择较小的字符串长度
+            if len(str1) % L == 0 and len(str2) % L == 0:
+            #第二步检查：长度。L 能整除 str1 的长度——str1 的总长度能被恰好切成若干个 L 宽的块，str2同理。
+                cand = str1[:L]
+                #cand即candidate“候选者”，cand为取出str1的前L个字符。
+                if cand * (len(str1) // L) == str1 and cand * (len(str2) // L) == str2:
+                #第三步检查：字符。len(str1)//L为L整除str1的长度取商，k1。cand*k1：将k1个候选者拼接。总：k1个cand拼接是否得到str1。str2同理。
+                    return cand
+        return ""
+```
+2.规律
+由`if cand * (len(str1) // L) == str1 and cand * (len(str2) // L) == str2:`得：
+（str1 + str2 == str2 + str1的必要性）
+$$
+str1 + str2 = x×k1 + x×k2 = x×(k1+k2)
+str2 + str1 = x×k2 + x×k1 = x×(k2+k1)
+$$
+拼接可以交换顺序
+
+# 得到最多糖果的孩子
+暴力求解版
+初稿：
+class Solution:
+    def kidsWithCandies(self, candies: List[int], extraCandies: int) -> List[bool]:
+        result = []
+        for i in range(len(candies)){
+            candies[i] = candies[i] + entraCandies
+            for j in range(i+1,len(candies))
+                if  candies[i] > candies[j]
+                    result[i] = True
+                else result[i] = False
+        }
+        return result
+改错：
+1.python划分代码块不用{},用缩进for 和 if 行尾缺冒号
+2. 原地修改 candies，污染后续判断
+eg.candies = [2, 1], extraCandies = 3
+我的代码：i=0 时 candies[0] 被改成 5；
+         i=1 时 1+3=4，跟被污染的 5 比 → 4 < 5 → False，错
+3.只和后面的孩子比，漏掉了前面的
+
+改错后：
+
+```
+class Solution:
+    def kidsWithCandies(self, candies: List[int], extraCandies: int) -> List[bool]:
+        n = len(candies)
+        result = [False] * n                # ① 先建好结果盒子
+        for i in range(n):
+            give = candies[i] + extraCandies  # ② 用临时变量，不动原数组
+            b = True
+            for j in range(n):                # ③ 和"所有"孩子比（0 到 n-1）
+                if give < candies[j]:         # ④ 只要有一个人比他高
+                    b = False                 #    就不算最多
+                    break                     #    break 只跳出内层循环，函数还活着
+            result[i] = b                     # ⑤ 记录，不 return
+        return result                         # ⑥ 全部判完，整体返回
+
+```
+简化算法
+```
+class Solution:
+    def kidsWithCandies(self, candies: List[int], extraCandies: int) -> List[bool]:
+        m = max(candies)                                  # 只找一次最大值
+        return [c + extraCandies >= m for c in candies]   # 每人够不够得着
+```
+1.回顾列表推导式
+[  c + extraCandies >= m   for c in candies  ]
+   └──────┬──────────┘     └───────┬───────┘
+     每轮要算出的元素          循环本身（从 candies 逐个取 c，c是糖果数）
+
+2.列表循环的用法
+|想要的|正确写法|
+|:---:|:---:|
+|只要每个元素的值|for c in candies:|
+|只要位置|for i in range(len(candies)):|
+|位置和值都要|for i, c in enumerate(candies):|
 
 
 
