@@ -241,6 +241,84 @@ class Solution:
 |只要位置|for i in range(len(candies)):|
 |位置和值都要|for i, c in enumerate(candies):|
 
+# 种花问题（贪心算法）
 
+题目：
+假设有一个很长的花坛，一部分地块种植了花，另一部分却没有。可是，花不能种植在相邻的地块上，它们会争夺水源，两者都会死去。
 
+给你一个整数数组 flowerbed 表示花坛，由若干 0 和 1 组成，其中 0 表示没种植花，1 表示种植了花。另有一个数 n ，能否在不打破种植规则的情况下种入 n 朵花？能则返回 true ，不能则返回 false 。
 
+示例 1：
+
+输入：flowerbed = [1,0,0,0,1], n = 1
+输出：true
+示例 2：
+
+输入：flowerbed = [1,0,0,0,1], n = 2
+输出：false
+ 
+
+提示constraints(题目对输入数据的保证)：
+
+1 <= flowerbed.length <= 2 * 104
+flowerbed[i] 为 0 或 1
+flowerbed 中不存在相邻的两朵花
+0 <= n <= flowerbed.length
+
+1.n 最大 2 万，说明 O(n) 一次遍历绰绰有余，不需要也不该写更复杂的解法。反之如果题目给 10⁹，就是在暗示你必须用 O(log n) 或数学解。
+2.注意 n=0 的坑：n=0 时不管花坛什么样都应返回 True（一朵花都不种当然"不打破规则"），要先处理 n==0 再谈合法性检查。
+
+解答：（边界检查版）
+```
+class Solution:
+    def canPlaceFlowers(self, flowerbed: list[int], n: int) -> bool:
+        count = 0
+        m = len(flowerbed)
+        if n = 0:return True
+        for i in range(l):
+            if flowerbed[i] == 0:
+                left_ok  = (i == 0) or (flowerbed[i-1] == 0)
+                right_ok = (i == m - 1) or (flowerbed[i+1] == 0) 
+                if left_ok and right_ok:
+                    flowerbed[i] = 1 
+                    count += 1
+                    if count >= n:
+                        return True
+        return count >= n           
+```
+
+改错：判断语句应用“=”，`if n = 0:`应该为`if n == 0:`
+优化：(补0版)
+1.列表的拼接操作——把三个列表首尾相连，串成一个新的长列表：
+'flowerbed = [0] + [flowerbed] + [0]'
+2.每一块真实的地，左右都有了邻居，因此无需特别的边界检查，可以统一检查有无种花：
+`if flowerbed[i] == 0 and flowerbed[i-1] == 0 and flowerbed[i+1] == 0:`
+3.真实的地在 1 到 len(flowerbed)-2 之间，所以循环要写成：
+```
+for i in range(1,len(flowerbed)-1):
+    if flowerbed == 0 and flowerbed[i-1] == 0 and flowerbed[i+1] == 0:
+        flowerbed[i] = 1
+        count += 1
+```
+4.可以删掉if n==0的特判
+考虑n=0，n=0时不管种没种，都有 count >= 0 恒成立 → 返回 True ✅return count >= n
+
+最终代码：
+```
+class Solution:
+    def canPlaceFlowers(self, flowerbed: list[int], n: int) -> bool:
+        count = 0
+        flowerbed = [0] + flowerbed + [0]
+        if n == 0:
+            return True
+        for i in range(1,len(flowerbed)-1):
+            if flowerbed[i] == 0 and flowerbed[i-1] == 0 and flowerbed[i+1] == 0:
+                flowerbed[i] = 1
+                count += 1
+                if count >= n:
+                    return True
+        return count >= n
+```
+
+算法思想：贪心算法（在每一步都做“当下看起来最划算”的选择，并且做完绝不反悔、不回头重来。）
+“遇到能种的地方就马上种”就是贪心的选择。
