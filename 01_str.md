@@ -1,5 +1,6 @@
 # 交替合并字符串
 
+
 题目：给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回 合并后的字符串 。
 
 解答：
@@ -322,3 +323,60 @@ class Solution:
 
 算法思想：贪心算法（在每一步都做“当下看起来最划算”的选择，并且做完绝不反悔、不回头重来。）
 “遇到能种的地方就马上种”就是贪心的选择。
+
+# 反转字符串中的元音字母
+
+初始版本：
+```
+class Solution:
+    def reverseVowels(self, s: str) -> str:
+        ls = []
+        chars = list(s)
+        yyzm = {'a','e','i','o','u','A','E','I','O','U'}
+        for i in s:
+            if i in yyzm:
+                ls.append(i)
+        j = len(ls)-1
+        for i in range(len(chars)):
+            if chars[i] in yyzm:
+                chars[i] = ls[j]
+                j = j-1
+        return "".join(chars) 
+```
+思路：先找到要变的元音字母存起来，再把字符串变列表，遍历一次插回去
+改错：
+range(不可以放列表)
+优化：
+1.创建集合：
+`yyzm = set('aeiouAEIOU')`
+2.字符串转列表（变量名等于list(字符串)）：
+`chars = list(s)`        
+3.将for,if,append简化成一行(遍历……，将满足……条件的值写入列表)：
+`vowels = [c for c in chars if c in yyzm]`
+列表名 = [表达式 for 变量 in 可迭代对象 if 条件]
+4.双指针写法：不额外收集元音，左右指针向中间靠拢，两边都找到元音就交换
+```
+class Solution:
+    def reverseVowels(self, s: str) -> str:
+        yyzm = set('aeiouAEIOU')
+        chars = list(s)
+        left, right = 0, len(chars) - 1
+        
+        while left < right:
+            while left < right and chars[left] not in yyzm:
+                left += 1
+            while left < right and chars[right] not in yyzm:
+                right -= 1
+            chars[left], chars[right] = chars[right], chars[left]
+            left += 1
+            right -= 1
+        
+        return "".join(chars)
+
+```
+||for + i|while + 双指针|
+|:---:|:---:|:---:|
+|下标是谁|i|left 和 right（有两个）|
+|谁负责移动|for循环自动 +1|写left += 1、right -= 1|
+|何时停止|i 走到末尾|两指针相遇（left < right 不成立）|
+|扫描方向|从左到右一遍|从两端向中间夹|
