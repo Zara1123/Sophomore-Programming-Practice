@@ -380,3 +380,12 @@ class Solution:
 |谁负责移动|for循环自动 +1|写left += 1、right -= 1|
 |何时停止|i 走到末尾|两指针相遇（left < right 不成立）|
 |扫描方向|从左到右一遍|从两端向中间夹|
+
+# 反转字符串中的单词
+class Solution:
+    def reverseWords(self, s: str) -> str:
+        return ' '.join(reversed(s.split()))
+
+注意：
+1.split() 不加参数时，自动按任意数量空白切分，且丢弃空字符串——首尾空格、连续空格全部自动处理
+2.reversed() 不修改原列表、不是新建列表，而是返回一个反向迭代器（惰性求值，遍历时才逐个吐元素），真正的原地倒序是 list.reverse()
