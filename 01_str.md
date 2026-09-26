@@ -1,4 +1,4 @@
-# 交替合并字符串
+# 1-1交替合并字符串
 
 
 题目：给你两个字符串 word1 和 word2 。请你从 word1 开始，通过交替添加字母来合并字符串。如果一个字符串比另一个字符串长，就将多出来的字母追加到合并后字符串的末尾。返回 合并后的字符串 。
@@ -128,7 +128,7 @@ Python 的 append 帮你记着“该塞第几个格子了”，C 没这服务，
 
 C 的字符串没有 length 属性，全靠结尾的 '\0' 标记“到这结束了”。忘写这行，strlen 读返回字符串时会一直往后读到内存 garbage 为止——这就是无数黑客攻击的源头（缓冲区溢出）。
 
-# 字符串的最大公因子
+# 1-2字符串的最大公因子
 
 题目：对于字符串 s 和 t，只有在 s = t + t + t + ... + t + t（t 自身连接 1 次或多次）时，我们才认定 “t 能除尽 s”。给定两个字符串 str1 和 str2 。返回 最长字符串 x，要求满足 x 能除尽 str1 且 x 能除尽 str2 。
 
@@ -183,7 +183,7 @@ str2 + str1 = x×k2 + x×k1 = x×(k2+k1)
 $$
 拼接可以交换顺序
 
-# 得到最多糖果的孩子
+# 1-3得到最多糖果的孩子
 暴力求解版
 初稿：
 class Solution:
@@ -215,11 +215,11 @@ class Solution:
         for i in range(n):
             give = candies[i] + extraCandies  # ② 用临时变量，不动原数组
             b = True
-            for j in range(n):                # ③ 和"所有"孩子比（0 到 n-1）
+            for j in range(n):                # ③ 和"所有"孩子比
                 if give < candies[j]:         # ④ 只要有一个人比他高
                     b = False                 #    就不算最多
                     break                     #    break 只跳出内层循环，函数还活着
-            result[i] = b                     # ⑤ 记录，不 return
+            result[i] = b                     # ⑤ 记录，不return
         return result                         # ⑥ 全部判完，整体返回
 
 ```
@@ -242,7 +242,7 @@ class Solution:
 |只要位置|for i in range(len(candies)):|
 |位置和值都要|for i, c in enumerate(candies):|
 
-# 种花问题（贪心算法）
+# 1-4种花问题（贪心算法）
 
 题目：
 假设有一个很长的花坛，一部分地块种植了花，另一部分却没有。可是，花不能种植在相邻的地块上，它们会争夺水源，两者都会死去。
@@ -276,7 +276,7 @@ class Solution:
         count = 0
         m = len(flowerbed)
         if n = 0:return True
-        for i in range(l):
+        for i in range(m):
             if flowerbed[i] == 0:
                 left_ok  = (i == 0) or (flowerbed[i-1] == 0)
                 right_ok = (i == m - 1) or (flowerbed[i+1] == 0) 
@@ -324,7 +324,7 @@ class Solution:
 算法思想：贪心算法（在每一步都做“当下看起来最划算”的选择，并且做完绝不反悔、不回头重来。）
 “遇到能种的地方就马上种”就是贪心的选择。
 
-# 反转字符串中的元音字母
+# 1-5反转字符串中的元音字母
 
 初始版本：
 ```
@@ -374,14 +374,22 @@ class Solution:
         return "".join(chars)
 
 ```
-||for + i|while + 双指针|
+|for + i|while + 双指针|
 |:---:|:---:|:---:|
 |下标是谁|i|left 和 right（有两个）|
 |谁负责移动|for循环自动 +1|写left += 1、right -= 1|
 |何时停止|i 走到末尾|两指针相遇（left < right 不成立）|
 |扫描方向|从左到右一遍|从两端向中间夹|
 
-# 反转字符串中的单词
+5.一行写法
+`for z in zip(word1,word2) for c in zip if c `
+（1）zip_longest(a, b)：用 None 补齐较长的一边，到最长的那个结束
+zip_longest("ab", "pqrs")   # → ('a','p'), ('b','q'), (None,'r'), (None,'s')
+（2）for z in zip_longest(word1, word2) for c in z
+嵌套推导式的阅读规则：for 从左到右 = 从外层到内层，等价于普通双层循环
+（3）if c 过滤掉 None，补齐用的 None 会被当成 False，if c 就是把它们筛掉
+
+# 1-6反转字符串中的单词
 class Solution:
     def reverseWords(self, s: str) -> str:
         return ' '.join(reversed(s.split()))
@@ -389,3 +397,66 @@ class Solution:
 注意：
 1.split() 不加参数时，自动按任意数量空白切分，且丢弃空字符串——首尾空格、连续空格全部自动处理
 2.reversed() 不修改原列表、不是新建列表，而是返回一个反向迭代器（惰性求值，遍历时才逐个吐元素），真正的原地倒序是 list.reverse()
+
+# 1-7除自身以外数组的乘积
+
+最暴力解法（两次循环跳过下标i元素）
+```
+answer = [1] * n
+    for i in range(len(nums)):
+       for j in range(len(nums)):
+            if i != j:
+                answer[i] = answer[i] * nums[j]
+        return answer
+```
+1.新建列表，初值设为1
+2.内层循环分两段，绕开 i
+
+
+优化版1：*区间划分思维*
+```
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        L = [1] * n 
+        R = [1] * n 
+
+        for i in range(1, n):            
+            L[i] = L[i-1] * nums[i-1]
+
+        for i in range(n-2, -1, -1):     
+            R[i] = R[i+1] * nums[i+1]
+
+        return [L[i] * R[i] for i in range(n)]
+```
+解读：
+1.累乘的起点必须是乘法单位元
+2.[表达式 for 变量 in 可迭代对象]
+相当于：
+```
+result = []
+for 变量 in 可迭代对象:
+    result.append(表达式)
+```
+
+优化版2：省略R数组
+```
+class Solution:
+    def productExceptSelf(self, nums: List[int]) -> List[int]:
+        n = len(nums)
+        answer = [1] * n
+
+        for i in range(1, n):    
+            answer[i] = answer[i-1] * nums[i-1]
+
+        r = 1                           
+        for i in range(n-1, -1, -1):    
+            answer[i] *= r
+            r *= nums[i]
+
+        return answer
+
+```
+解读：
+1.先将左侧元素累乘
+2.再将右侧元素的乘积乘上左侧累乘结果
