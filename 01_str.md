@@ -460,3 +460,58 @@ class Solution:
 解读：
 1.先将左侧元素累乘
 2.再将右侧元素的乘积乘上左侧累乘结果
+
+# 1-8递增的三元子序列
+
+初稿：
+```
+class Solution:
+    def increasingTriplet(self, nums: list[int]) -> bool:
+        mini_num = second_num = float(inf)
+        for x in nums:
+            if x <= mini_num:
+                mini_num = x
+            elif x > mini_num and x<= second_num:
+                second_num = x
+            else x > second_num:
+                max_num = x
+                return True
+        return False
+```
+算法思想：
+1.贪心维护，只需记录“最有潜力的候选者”。
+任何真实解能走通的路，我们维护的状态一定先一步具备条件。
+
+|状态|含义|更新规则|
+|:---:|:---:|:---:|
+|first|至今为止的最小元素|x <= first 时替换|
+|second|所有已出现的递增对中，最小的第二个数|first < x <= second 时替换|
+
+2.赋初值
+|运算|单位元（初值）|
+|:---:|:---:|
+|求和|0|
+|求积|1|
+|求 min|+∞(inf)|
+|求 max|−∞(-inf)|
+
+改错：
+1.else不能带条件，代表“其余所有情况”，本题可以直接删除else后的条件，因为条件多余。
+2.inf缺引号。inf不是内置变量，需要作为字符串传入，或用math.inf
+`float('inf')或math.inf` 
+
+正确版：
+```
+class Solution:
+    def increasingTriplet(self, nums: list[int]) -> bool:
+        first = second = float('inf')
+        for x in nums:
+            if x <= first:
+                first = x
+            elif x <= second:
+                second = x
+            else:
+                return True
+        return False
+
+```
