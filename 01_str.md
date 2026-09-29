@@ -515,3 +515,34 @@ class Solution:
         return False
 
 ```
+
+# 1-9压缩字符串
+算法思想：读写双指针
+read 指针负责“读”原数组分组统计，write 指针负责把压缩结果“写回”原数组前面。
+
+while read < n:                 # ── 外层：每轮处理"一组"
+    c = chars[read]             # 记下这组是什么字符
+    start = read                # 记下这组从哪开始
+    while read < n and chars[read] == c:   # ── 内层：read 一直走，直到遇到不同的字符
+        read += 1               #    或者走到数组末尾
+    count = read - start        # 这一组有几个 → read 走了几步就是几个
+
+    chars[write] = c            # ── 写字符（write 只走 1 步）
+    write += 1
+
+    if count > 1:               # 长度 1 不写数字（题目规则）
+        for d in str(count):    # ── 写数字：一位一位写
+            chars[write] = d
+            write += 1
+    return write                #规则是「写一格，走一步」——写完字符走一步，写完每一位数字也各走一步
+
+三个容易忽略的细节：
+
+① 外层为什么是 while 不是 for？
+因为 read 每轮不是走 1 步，而是跳一整组。用 for read in range(n) 会破坏分组逻辑。
+
+② 内层条件 read < n and chars[read] == c 的顺序不能反
+必须先判 read < n。反过来的话，最后一组会把 chars[n]（越界）拿去比较，直接 IndexError。
+
+③ for d in str(count) 怎么工作？
+遍历字符串会逐个吐出字符：str(12) = "12" → 先吐 '1'，再吐 '2'。不能写 chars[write] = str(count)；for循环只规定d会自动遍历，但write需要手动指向下一个位置。
